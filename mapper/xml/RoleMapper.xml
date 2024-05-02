@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.management.mapper.RoleMapper">
+
+    <!-- Generic query mapping results -->
+    <resultMap id="BaseResultMap" type="com.management.Parametric.Role">
+        <id column="id" property="id" />
+        <result column="role_name" property="name" />
+        <result column="role_description" property="roleDesc" />
+    </resultMap>
+
+    <select id="findRoleByPage" resultMap="BaseResultMap">
+        SELECT
+        role.id,
+        role.name,
+        role.role_desc
+        FROM
+        role AS role
+        WHERE (1=1)
+        <if test=" roleName != null and ''!=roleName">
+            AND role.`name` LIKE CONCAT('%',#{roleName},'%')
+        </if>
+    </select>
+
+    <!---bind permissions dropdown box -->
+    <select id="findAllRoles" resultMap="BaseResultMap">
+        SELECT
+        role.id,
+        role.`name`
+        FROM
+        role role
+    </select>
+
+</mapper>
+

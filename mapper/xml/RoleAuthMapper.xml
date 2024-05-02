@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.management.mapper.Mapper.RoleAuthMapper">
+
+    <!-- Generic query mapping results -->
+    <resultMap id="BaseResultMap" type="com.management.Parametric.RolePerms">
+        <id column="id" property="id"></id>
+        <result column="role_id" property="roleId" />
+        <result column="perms_id" property="permsId" />
+    </resultMap>
+    <!-- Get the appropriate permissions based on the role id -->
+    <select id="findRolesPermisByRole" resultMap="BaseResultMap">
+        SELECT
+        rp.perms_id
+        FROM
+        `role_permission` rp
+        WHERE
+        rp.role_id = #{roleId}
+    </select>
+    <!-- Get the corresponding number of permissions based on the role id -->
+    <select id="findCountByRole" resultType="java.lang.Integer">
+        SELECT DISTINCT
+        COUNT(*)
+        FROM
+        role_permission rp
+        INNER JOIN authority p ON rp.perms_id = p.id
+        WHERE
+        p.url = #{url}
+        AND rp.role_id =  #{roleId}
+    </select>
+
+
+    <!-- 根据父id查询菜单 -->
+    <select id="findRolesPermisByFatherId" resultType="com.alan.pojo.Perms">
+        <if test="null == parentId">
+            SELECT
+            p.`name`,
+            p.url,
+            p.id
+            FROM
+            `t_perms` AS p LEFT JOIN t_role_perms AS rp ON p.id = rp.perms_id
+            WHERE
+            p.parent_id = '0'
+            <if test="null != roleId and ''!=roleId">
+                AND rp.role_id = #{roleId}
+            </if>
+            GROUP BY p.sort
+        </if>
+        <if test="null != parentId">
+            SELECT
+            p.`name`,
+            p.url,
+            p.id
+            FROM t_perms AS p LEFT JOIN t_role_perms AS rp ON p.id = rp.perms_id
+            WHERE
+            p.parent_id = #{parentId}
+            <if test="null != roleId and ''!=roleId">
+                AND rp.role_id = #{roleId}
+            </if>
+            GROUP BY p.sort
+        </if>
+    </select>
+
+</mapper>
+

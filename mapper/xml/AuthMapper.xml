@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.management.mapper.PermsMapper">
+
+    <!-- Generic query mapping results -->
+    <resultMap id="BaseResultMap" type="com.management.Parametric.Perms">
+        <id column="id" property="id" />
+        <result column="url" property="url" />
+        <result column="name" property="name" />
+        <result column="parent_id" property="parentId" />
+        <result column="sort" property="sort" />
+        <result column="type" property="type" />
+    </resultMap>
+
+    <!--分页查询菜单-->
+    <select id="findPermissionByPage" resultMap="BaseResultMap">
+        SELECT
+        authority.url,
+        authority.`name`,
+        authority.id,
+        authority.type,
+        lastAuthority.`name` AS lastAuthority
+        FROM
+        authority AS authority
+        LEFT JOIN t_perms AS lastAuthority ON authority.parent_id = lastAuthority.id
+        WHERE
+        (1 = 1)
+        <if test="''!=permsName">
+            AND authority.`name` LIKE CONCAT('%',#{permsName},'%')
+        </if>
+    </select>
+
+
+    <select id="findPermissionByName" resultMap="BaseResultMap">
+        SELECT
+        authority.url,
+        authority.`name`,
+        authority.id
+        FROM
+        authority AS authority
+        WHERE (1=1)
+        <if test="''!= name">
+            AND authority.url LIKE CONCAT('%',#{name},'%')
+        </if>
+    </select>
+
+
+    <!--- Query all parent menu bound dropdowns -->
+    <select id="findLastPermissionByType" resultMap="BaseResultMap">
+        SELECT
+        authority.`name`,
+        authority.id
+        FROM
+        authority AS authority
+        WHERE authority.type = #{type}
+    </select>
+
+    <!--Query all parent menu bindings tree-->
+    <select id="findBasePermission" resultMap="BaseResultMap">
+        SELECT
+        authority.id,
+        authority.`name`,
+        authority.parent_id
+        FROM
+        authority as authority
+        WHERE authority.parent_id = '0'
+    </select>
+
+    <!--根据父级id查询菜单-->
+    <select id="findPermissionByFatherId" resultMap="BaseResultMap">
+        SELECT
+        authority.id,
+        authority.`name`
+        FROM
+        t_perms authority
+        WHERE authority.parent_id = #{fatherId}
+    </select>
+
+    <!--根据url查询记录-->
+    <select id="findCountByUrl" resultType="java.lang.Integer">
+        SELECT
+        COUNT(*)
+        FROM
+        authority as authority
+        WHERE authority.url = #{requestUrl}
+    </select>
+
+</mapper>
